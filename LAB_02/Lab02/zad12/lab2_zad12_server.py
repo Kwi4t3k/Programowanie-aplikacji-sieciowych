@@ -8,8 +8,9 @@ HOST = '127.0.0.1'
 PORT = 2908
 MAX_PACKET_LENGTH = 20
 
+
 def recvall(sock, msgLen):
-    msg = ""
+    msg = b""
     bytesRcvd = 0
 
     while bytesRcvd < msgLen:
@@ -24,39 +25,52 @@ def recvall(sock, msgLen):
 
     return msg
 
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
     s.bind((HOST, PORT))
 except socket.error as msg:
-    print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+    print('Bind failed. Message: ' + str(msg))
     sys.exit()
 
 s.listen(1000)
 
-print "[%s] TCP ECHO Server is waiting for incoming connections ... " % strftime("%Y-%m-%d %H:%M:%S", gmtime())
+print("[%s] TCP ECHO Server is waiting for incoming connections ... " %
+      strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
 while True:
 
     connection, client_address = s.accept()
 
     try:
-        print "[%s] Client %s connected ... " % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), client_address)
+        print("[%s] Client %s connected ... " %
+              (strftime("%Y-%m-%d %H:%M:%S", gmtime()), client_address))
 
         while True:
-            try :
+            try:
                 data = recvall(connection, MAX_PACKET_LENGTH)
-                print "[%s] Client %s sent \'%s\' " % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), client_address, data)
+
+                print("[%s] Client %s sent '%s'" %
+                      (strftime("%Y-%m-%d %H:%M:%S", gmtime()),
+                       client_address,
+                       data.decode(errors="ignore")))
 
                 if data:
 
-                        print "[%s] Sending back to client %s ... " % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), data)
-                        connection.sendall(data)
+                    print("[%s] Sending back to client %s ... " %
+                          (strftime("%Y-%m-%d %H:%M:%S", gmtime()), client_address))
+
+                    connection.sendall(data)
+
                 else:
-                    print "[%s] Client %s disconnected ... " % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), client_address)
+                    print("[%s] Client %s disconnected ... " %
+                          (strftime("%Y-%m-%d %H:%M:%S", gmtime()), client_address))
                     break
-            except socket.error, e:
-                    print "[%s] Something happened, but I do not want to bother you ... %s " % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), e)
+
+            except socket.error as e:
+                print("[%s] Something happened, but I do not want to bother you ... %s " %
+                      (strftime("%Y-%m-%d %H:%M:%S", gmtime()), e))
 
     finally:
         connection.close()
