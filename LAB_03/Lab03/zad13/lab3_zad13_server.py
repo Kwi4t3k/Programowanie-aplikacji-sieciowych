@@ -1,54 +1,59 @@
 #!/usr/bin/env python
 
-import socket, select, sys
+import socket
+import sys
 from time import gmtime, strftime
 
 
-def check_msg_syntax(txt):
-    s = len(txt.split(";"))
-    if s != 7:
+def sprawdz_skladnie(txt):
+    pola = txt.split(";")
+
+    if len(pola) != 7:
         return "BAD_SYNTAX"
+
+    if pola[0] != "zad13odp" or pola[1] != "src" or pola[3] != "dst" or pola[5] != "data":
+        return "BAD_SYNTAX"
+
+    try:
+        src_port = int(pola[2])
+        dst_port = int(pola[4])
+        data_len = int(pola[6])
+    except ValueError:
+        return "BAD_SYNTAX"
+
+    if src_port == 60788 and dst_port == 2901 and data_len == 28:
+        return "TAK"
     else:
-        tmp = txt.split(";")
-        if tmp[0] == "zad13odp" and tmp[1] == "src" and tmp[3] == "dst" and tmp[5] == "data":
-            try:
-                src_port = int(tmp[2])
-                dst_port = int(tmp[4])
-                data = tmp[6]
-            except :
-                return "BAD_SYNTAX:"
-            if src_port == 2900 and dst_port == 35211 and data == "hello :)":
-                return "TAK"
-            else:
-                return "NIE"
-        else:
-            return "BAD_SYNTAX"
+        return "NIE"
 
 
-HOST = '127.0.0.1'
-PORT = 2909
+HOST = "127.0.0.1"
+PORT = 2910
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 try:
     sock.bind((HOST, PORT))
 except socket.error as msg:
-    print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+    print("Bind failed. Message: " + str(msg))
     sys.exit()
 
-print "[%s] UDP ECHO Server is waiting for incoming connections ... " % strftime("%Y-%m-%d %H:%M:%S", gmtime())
-
+print("[%s] UDP Server is waiting for incoming connections ... " %
+      strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
 try:
     while True:
-
         data, address = sock.recvfrom(1024)
-        print '[%s] Received %s bytes from client %s. Data: %s' % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), len(data), address, data)
+        tekst = data.decode()
+
+        print("[%s] Received %s bytes from client %s. Data: %s" %
+              (strftime("%Y-%m-%d %H:%M:%S", gmtime()), len(data), address, tekst))
 
         if data:
+            answer = sprawdz_skladnie(tekst)
+            sent = sock.sendto(answer.encode(), address)
 
-            answer = check_msg_syntax(data)
-            sent = sock.sendto(answer, address)
-            print '[%s] Sent %s bytes bytes back to client %s.' % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), sent, address)
+            print("[%s] Sent %s bytes back to client %s." %
+                  (strftime("%Y-%m-%d %H:%M:%S", gmtime()), sent, address))
 finally:
     sock.close()
