@@ -1,0 +1,89 @@
+#zad1
+
+# import socket
+
+# HOST = "127.0.0.1"
+# PORT = 5000
+
+# klient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# klient.connect((HOST, PORT))
+
+# klient.send("podaj czas".encode())
+
+# odpowiedz = klient.recv(1024)
+# print("Data i czas:", odpowiedz.decode())
+
+# klient.close()
+
+#zad2
+
+# import socket
+
+# HOST = "127.0.0.1"
+# PORT = 5000
+
+# klient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# klient.connect((HOST, PORT))
+
+# wiadomosc = input("Podaj wiadomość: ")
+# klient.send(wiadomosc.encode())
+
+# odpowiedz = klient.recv(1024)
+# print("Odpowiedź serwera:", odpowiedz.decode())
+
+# klient.close()
+
+#zad3
+
+# import socket
+
+# HOST = "127.0.0.1"
+# PORT = 5000
+
+# klient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# wiadomosc = input("Podaj wiadomość: ")
+# klient.sendto(wiadomosc.encode(), (HOST, PORT))
+
+# odpowiedz, adres = klient.recvfrom(1024)
+# print("Odpowiedź serwera:", odpowiedz.decode())
+
+# klient.close()
+
+#zad4
+
+# import socket
+
+# HOST = "127.0.0.1"
+# PORT = 5000
+
+# klient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# liczba1 = input("Podaj pierwszą liczbę: ")
+# operator = input("Podaj operator (+ - * /): ")
+# liczba2 = input("Podaj drugą liczbę: ")
+
+# wiadomosc = liczba1 + " " + operator + " " + liczba2
+# klient.sendto(wiadomosc.encode(), (HOST, PORT))
+
+# odpowiedz, adres = klient.recvfrom(1024)
+# print("Wynik:", odpowiedz.decode())
+
+# klient.close()
+
+#zad5
+
+import socket
+
+HOST = "127.0.0.1"
+PORT = 5000
+
+klient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+ip = input("Podaj adres IP: ")
+klient.sendto(ip.encode(), (HOST, PORT))
+
+odpowiedz, adres = klient.recvfrom(1024)
+print("Hostname:", odpowiedz.decode())
+
+klient.close()
