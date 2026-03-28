@@ -107,3 +107,55 @@
 
 #zad7
 
+# import socket
+
+# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# sock.connect(("127.0.0.1", 2900))
+
+# message = input("Podaj wiadomość: ")
+# sock.send(message.encode())
+
+# result = sock.recv(1024)
+# print("Odpowiedź:", result.decode())
+
+# sock.close()
+
+#zad8
+
+import socket
+
+HOST = "127.0.0.1"
+PORT = 2900
+MAKS_DLUGOSC = 20
+
+def recvall(sock, msg_len):
+    msg = b""
+    bytes_rcvd = 0
+
+    while bytes_rcvd < msg_len:
+        chunk = sock.recv(msg_len - bytes_rcvd)
+
+        if chunk == b"":
+            break
+
+        bytes_rcvd += len(chunk)
+        msg += chunk
+
+    return msg
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((HOST, PORT))
+
+wiadomosc = input("Podaj wiadomość: ")
+
+if len(wiadomosc) < MAKS_DLUGOSC:
+    wiadomosc = wiadomosc.ljust(MAKS_DLUGOSC)
+elif len(wiadomosc) > MAKS_DLUGOSC:
+    wiadomosc = wiadomosc[:MAKS_DLUGOSC]
+
+sock.sendall(wiadomosc.encode())
+
+odpowiedz = recvall(sock, len(wiadomosc.encode()))
+print("Odpowiedź:", odpowiedz.decode())
+
+sock.close()
