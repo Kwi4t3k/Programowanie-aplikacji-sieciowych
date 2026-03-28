@@ -173,6 +173,31 @@ while True:
 
 6. Napisz program serwera, który działając pod adresem 127.0.0.1 oraz na określonym porcie UDP, dla podłączającego się klienta, odbierze od niego nazwę hostname, i odeśle odpowiadający mu adres IP.
 
+```python
+import socket
+
+HOST = "127.0.0.1"
+PORT = 5000
+
+serwer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+serwer.bind((HOST, PORT))
+
+print("Uruchomiono serwer...")
+
+while True:
+    dane, adres = serwer.recvfrom(1024)
+    hostname = dane.decode().strip()
+
+    print("Odebrano od", adres, "hostname:", hostname)
+
+    try:
+        ip = socket.gethostbyname(hostname)
+    except socket.gaierror:
+        ip = "Nie znaleziono IP"
+
+    serwer.sendto(ip.encode(), adres)
+```
+
 ---
 
 7. Zmodyfikuj program nr 2 z laboratorium nr 3 w ten sposób, aby serwer wysyłał i odbierał wiadomość o maksymalnej długości 20 znaków.

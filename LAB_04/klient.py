@@ -73,17 +73,37 @@
 
 #zad5
 
-import socket
+# import socket
 
-HOST = "127.0.0.1"
-PORT = 5000
+# HOST = "127.0.0.1"
+# PORT = 5000
 
-klient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# klient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-ip = input("Podaj adres IP: ")
-klient.sendto(ip.encode(), (HOST, PORT))
+# ip = input("Podaj adres IP: ")
+# klient.sendto(ip.encode(), (HOST, PORT))
 
-odpowiedz, adres = klient.recvfrom(1024)
-print("Hostname:", odpowiedz.decode())
+# odpowiedz, adres = klient.recvfrom(1024)
+# print("Hostname:", odpowiedz.decode())
 
-klient.close()
+# klient.close()
+
+#zad6
+
+# import socket
+
+# HOST = "127.0.0.1"
+# PORT = 5000
+
+# klient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# hostname = input("Podaj hostname: ")
+# klient.sendto(hostname.encode(), (HOST, PORT))
+
+# odpowiedz, adres = klient.recvfrom(1024)
+# print("Adres IP:", odpowiedz.decode())
+
+# klient.close()
+
+#zad7
+

@@ -139,3 +139,31 @@
 #         hostname = "Nie znaleziono hostname"
 
 #     serwer.sendto(hostname.encode(), adres)
+
+#zad6
+
+# import socket
+
+# HOST = "127.0.0.1"
+# PORT = 5000
+
+# serwer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# serwer.bind((HOST, PORT))
+
+# print("Uruchomiono serwer...")
+
+# while True:
+#     dane, adres = serwer.recvfrom(1024)
+#     hostname = dane.decode().strip()
+
+#     print("Odebrano od", adres, "hostname:", hostname)
+
+#     try:
+#         ip = socket.gethostbyname(hostname)
+#     except socket.gaierror:
+#         ip = "Nie znaleziono IP"
+
+#     serwer.sendto(ip.encode(), adres)
+
+#zad7
+
