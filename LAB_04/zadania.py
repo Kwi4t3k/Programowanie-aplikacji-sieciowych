@@ -226,50 +226,200 @@
 
 #zad8
 
+# import socket
+
+# HOST = "127.0.0.1"
+# PORT = 2900
+
+# def recvall(sock, msgLen):
+#     msg = b""
+#     bytesRcvd = 0
+
+#     while bytesRcvd < msgLen:
+#         chunk = sock.recv(msgLen - bytesRcvd)
+
+#         if chunk == b"":
+#             break
+
+#         bytesRcvd += len(chunk)
+#         msg += chunk
+
+#     return msg
+
+# serwer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# serwer.bind((HOST, PORT))
+# serwer.listen(1)
+
+# print("Uruchomiono serwer...")
+
+# while True:
+#     klient, adres = serwer.accept()
+#     print("Połączono z:", adres)
+
+#     dane = recvall(klient, 20)
+
+#     if dane:
+#         print("Odebrano:", dane.decode(errors="ignore"))
+#         klient.sendall(dane)
+
+#     klient.close()
+
+#zad9
+
+# import socket
+
+# HOST = "127.0.0.1"
+# PORT = 2910
+
+# def check_msg_syntax(txt):
+#     parts = txt.split(";")
+
+#     if len(parts) != 7:
+#         return "BAD_SYNTAX"
+
+#     if parts[0] != "zad13odp" or parts[1] != "src" or parts[3] != "dst" or parts[5] != "data":
+#         return "BAD_SYNTAX"
+
+#     try:
+#         src_port = int(parts[2])
+#         dst_port = int(parts[4])
+#         data_len = int(parts[6])
+#     except ValueError:
+#         return "BAD_SYNTAX"
+
+#     if src_port == 60788 and dst_port == 2901 and data_len == 28:
+#         return "TAK"
+#     else:
+#         return "NIE"
+
+# serwer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# serwer.bind((HOST, PORT))
+
+# print("Uruchomiono serwer...")
+
+# while True:
+#     dane, adres = serwer.recvfrom(1024)
+#     tekst = dane.decode().strip()
+
+#     print("Odebrano od", adres, ":", tekst)
+
+#     odpowiedz = check_msg_syntax(tekst)
+#     serwer.sendto(odpowiedz.encode(), adres)
+
+#zad 10
+
+# import socket
+
+# HOST = "127.0.0.1"
+# PORT = 2910
+
+# def check_msg_syntax(txt):
+#     parts = txt.split(";")
+
+#     if len(parts) != 7:
+#         return "BAD_SYNTAX"
+
+#     if parts[0] != "zad14odp" or parts[1] != "src" or parts[3] != "dst" or parts[5] != "data":
+#         return "BAD_SYNTAX"
+
+#     try:
+#         src_port = int(parts[2])
+#         dst_port = int(parts[4])
+#         data = parts[6]
+#     except ValueError:
+#         return "BAD_SYNTAX"
+
+#     if src_port == 2900 and dst_port == 35211 and data == "hello :)":
+#         return "TAK"
+#     else:
+#         return "NIE"
+
+# serwer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# serwer.bind((HOST, PORT))
+
+# print("Uruchomiono serwer...")
+
+# while True:
+#     dane, adres = serwer.recvfrom(1024)
+#     tekst = dane.decode().strip()
+
+#     print("Odebrano od", adres, ":", tekst)
+
+#     odpowiedz = check_msg_syntax(tekst)
+#     serwer.sendto(odpowiedz.encode(), adres)
+
+#zad 11
+
 import socket
-import sys
 
-def recvall(sock, msgLen):
-    msg = ""
-    bytesRcvd = 0
+HOST = "127.0.0.1"
+PORT = 2911
 
-    while bytesRcvd < msgLen:
+def check_msgA_syntax(txt):
+    parts = txt.split(";")
 
-        chunk = sock.recv(msgLen - bytesRcvd)
+    if len(parts) != 9:
+        return "BAD_SYNTAX"
 
-        if chunk == "": break
+    if parts[0] != "zad15odpA" or parts[1] != "ver" or parts[3] != "srcip" or parts[5] != "dstip" or parts[7] != "type":
+        return "BAD_SYNTAX"
 
-        bytesRcvd += len(chunk)
-        msg += chunk
+    try:
+        ver = int(parts[2])
+        srcip = parts[4]
+        dstip = parts[6]
+        typ = int(parts[8])
+    except ValueError:
+        return "BAD_SYNTAX"
 
-    return msg
-
-
-remoteServerIP = "127.0.0.1"
-port = 2900
-
-try:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex((remoteServerIP, port))
-
-    if result == 0:
-        sock.sendall('Just a text \n')
-        data = recvall(sock, 4096)
-
-        print("Port {} is open, data = {}".format(port, data.decode(errors="ignore")))
+    if ver == 4 and typ == 6 and srcip == "212.182.24.27" and dstip == "192.168.0.2":
+        return "TAK"
     else:
-        print("Port {} is closed".format(port))
+        return "NIE"
 
-    sock.close()
 
-except KeyboardInterrupt:
-    print("You pressed Ctrl+C")
-    sys.exit()
+def check_msgB_syntax(txt):
+    parts = txt.split(";")
 
-except socket.gaierror:
-    print("Hostname could not be resolved. Exiting")
-    sys.exit()
+    if len(parts) != 7:
+        return "BAD_SYNTAX"
 
-except socket.error:
-    print("Couldn't connect to server")
-    sys.exit()
+    if parts[0] != "zad15odpB" or parts[1] != "srcport" or parts[3] != "dstport" or parts[5] != "data":
+        return "BAD_SYNTAX"
+
+    try:
+        srcport = int(parts[2])
+        dstport = int(parts[4])
+        data = parts[6]
+    except ValueError:
+        return "BAD_SYNTAX"
+
+    if srcport == 2900 and dstport == 47526 and data == "network programming is fun":
+        return "TAK"
+    else:
+        return "NIE"
+
+
+serwer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+serwer.bind((HOST, PORT))
+
+print("Uruchomiono serwer...")
+
+while True:
+    dane, adres = serwer.recvfrom(1024)
+    tekst = dane.decode().strip()
+
+    print("Odebrano od", adres, ":", tekst)
+
+    parts = tekst.split(";")
+
+    if not parts:
+        odpowiedz = "BAD_SYNTAX"
+    elif parts[0] == "zad15odpA":
+        odpowiedz = check_msgA_syntax(tekst)
+    elif parts[0] == "zad15odpB":
+        odpowiedz = check_msgB_syntax(tekst)
+    else:
+        odpowiedz = "BAD_SYNTAX"
+
+    serwer.sendto(odpowiedz.encode(), adres)

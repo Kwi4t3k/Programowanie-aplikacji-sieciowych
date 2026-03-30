@@ -266,7 +266,43 @@ server_socket.close()
 8. Zmodyfikuj program nr 7 z laboratorium nr 3 w ten sposób, aby mieć pewność, że serwer w rzeczywistości odebrał / wysłał wiadomość o wymaganej długości.
 
 ```python
+import socket
 
+HOST = "127.0.0.1"
+PORT = 2900
+
+def recvall(sock, msgLen):
+    msg = b""
+    bytesRcvd = 0
+
+    while bytesRcvd < msgLen:
+        chunk = sock.recv(msgLen - bytesRcvd)
+
+        if chunk == b"":
+            break
+
+        bytesRcvd += len(chunk)
+        msg += chunk
+
+    return msg
+
+serwer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serwer.bind((HOST, PORT))
+serwer.listen(1)
+
+print("Uruchomiono serwer...")
+
+while True:
+    klient, adres = serwer.accept()
+    print("Połączono z:", adres)
+
+    dane = recvall(klient, 20)
+
+    if dane:
+        print("Odebrano:", dane.decode(errors="ignore"))
+        klient.sendall(dane)
+
+    klient.close()
 ```
 
 ---
@@ -274,7 +310,45 @@ server_socket.close()
 9. Napisz program serwera, który działając pod adresem 127.0.0.1 oraz na określonym porcie UDP, dla podłączającego się klienta, odbierze od niego wiadomość o treści podanej w zadaniu nr 13 z laboratorium nr 3, a następnie odeśle klientowi odpowiedź TAK lub NIE. W przypadku błędnego sformatowania wiadomości, serwer odeśle klientowi odpowiedź BAD SYNTAX.
 
 ```python
+import socket
 
+HOST = "127.0.0.1"
+PORT = 2910
+
+def check_msg_syntax(txt):
+    parts = txt.split(";")
+
+    if len(parts) != 7:
+        return "BAD_SYNTAX"
+
+    if parts[0] != "zad13odp" or parts[1] != "src" or parts[3] != "dst" or parts[5] != "data":
+        return "BAD_SYNTAX"
+
+    try:
+        src_port = int(parts[2])
+        dst_port = int(parts[4])
+        data_len = int(parts[6])
+    except ValueError:
+        return "BAD_SYNTAX"
+
+    if src_port == 60788 and dst_port == 2901 and data_len == 28:
+        return "TAK"
+    else:
+        return "NIE"
+
+serwer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+serwer.bind((HOST, PORT))
+
+print("Uruchomiono serwer...")
+
+while True:
+    dane, adres = serwer.recvfrom(1024)
+    tekst = dane.decode().strip()
+
+    print("Odebrano od", adres, ":", tekst)
+
+    odpowiedz = check_msg_syntax(tekst)
+    serwer.sendto(odpowiedz.encode(), adres)
 ```
 
 ---
@@ -282,7 +356,45 @@ server_socket.close()
 10. Napisz program serwera, który działając pod adresem 127.0.0.1 oraz na określonym porcie UDP, dla podłączającego się klienta, odbierze od niego wiadomość o treści podanej w zadaniu nr 14 z laboratorium nr 3, a następnie odeśle klientowi odpowiedź TAK lub NIE. W przypadku błędnego sformatowania wiadomości, serwer odeśle klientowi odpowiedź BAD SYNTAX.
 
 ```python
+import socket
 
+HOST = "127.0.0.1"
+PORT = 2910
+
+def check_msg_syntax(txt):
+    parts = txt.split(";")
+
+    if len(parts) != 7:
+        return "BAD_SYNTAX"
+
+    if parts[0] != "zad14odp" or parts[1] != "src" or parts[3] != "dst" or parts[5] != "data":
+        return "BAD_SYNTAX"
+
+    try:
+        src_port = int(parts[2])
+        dst_port = int(parts[4])
+        data = parts[6]
+    except ValueError:
+        return "BAD_SYNTAX"
+
+    if src_port == 2900 and dst_port == 35211 and data == "hello :)":
+        return "TAK"
+    else:
+        return "NIE"
+
+serwer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+serwer.bind((HOST, PORT))
+
+print("Uruchomiono serwer...")
+
+while True:
+    dane, adres = serwer.recvfrom(1024)
+    tekst = dane.decode().strip()
+
+    print("Odebrano od", adres, ":", tekst)
+
+    odpowiedz = check_msg_syntax(tekst)
+    serwer.sendto(odpowiedz.encode(), adres)
 ```
 
 ---
@@ -290,5 +402,77 @@ server_socket.close()
 11. Napisz program serwera, który działając pod adresem 127.0.0.1 oraz na określonym porcie UDP, dla podłączającego się klienta, odbierze od niego wiadomość o treści podanej w zadaniu nr 15 z laboratorium nr 3, a następnie odeśle klientowi odpowiedź TAK lub NIE. W przypadku błędnego sformatowania wiadomości, serwer odeśle klientowi odpowiedź BAD SYNTAX.
 
 ```python
+import socket
 
+HOST = "127.0.0.1"
+PORT = 2911
+
+def check_msgA_syntax(txt):
+    parts = txt.split(";")
+
+    if len(parts) != 9:
+        return "BAD_SYNTAX"
+
+    if parts[0] != "zad15odpA" or parts[1] != "ver" or parts[3] != "srcip" or parts[5] != "dstip" or parts[7] != "type":
+        return "BAD_SYNTAX"
+
+    try:
+        ver = int(parts[2])
+        srcip = parts[4]
+        dstip = parts[6]
+        typ = int(parts[8])
+    except ValueError:
+        return "BAD_SYNTAX"
+
+    if ver == 4 and typ == 6 and srcip == "212.182.24.27" and dstip == "192.168.0.2":
+        return "TAK"
+    else:
+        return "NIE"
+
+
+def check_msgB_syntax(txt):
+    parts = txt.split(";")
+
+    if len(parts) != 7:
+        return "BAD_SYNTAX"
+
+    if parts[0] != "zad15odpB" or parts[1] != "srcport" or parts[3] != "dstport" or parts[5] != "data":
+        return "BAD_SYNTAX"
+
+    try:
+        srcport = int(parts[2])
+        dstport = int(parts[4])
+        data = parts[6]
+    except ValueError:
+        return "BAD_SYNTAX"
+
+    if srcport == 2900 and dstport == 47526 and data == "network programming is fun":
+        return "TAK"
+    else:
+        return "NIE"
+
+
+serwer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+serwer.bind((HOST, PORT))
+
+print("Uruchomiono serwer...")
+
+while True:
+    dane, adres = serwer.recvfrom(1024)
+    tekst = dane.decode().strip()
+
+    print("Odebrano od", adres, ":", tekst)
+
+    parts = tekst.split(";")
+
+    if not parts:
+        odpowiedz = "BAD_SYNTAX"
+    elif parts[0] == "zad15odpA":
+        odpowiedz = check_msgA_syntax(tekst)
+    elif parts[0] == "zad15odpB":
+        odpowiedz = check_msgB_syntax(tekst)
+    else:
+        odpowiedz = "BAD_SYNTAX"
+
+    serwer.sendto(odpowiedz.encode(), adres)
 ```
