@@ -1,0 +1,548 @@
+# zad 6
+
+# import socket
+# import ssl
+# import base64
+
+# HOST = "poczta.interia.pl"
+# PORT = 587
+
+# def odbierz(sock):
+#     dane = b""
+#     while True:
+#         fragment = sock.recv(1024)
+#         dane += fragment
+#         if len(fragment) < 1024:
+#             break
+#     odpowiedz = dane.decode(errors="ignore")
+#     print(odpowiedz)
+#     return odpowiedz
+
+# def wyslij(sock, komenda):
+#     print(">>>", komenda.strip())
+#     sock.sendall(komenda.encode())
+#     return odbierz(sock)
+
+# def base64_encode(tekst):
+#     return base64.b64encode(tekst.encode()).decode()
+
+# nadawca = input("Podaj adres nadawcy: ").strip()
+# haslo = input("Podaj hasło: ").strip()
+# odbiorcy_tekst = input("Podaj odbiorców po przecinku: ").strip()
+# temat = input("Podaj temat: ").strip()
+
+# print("Podaj treść wiadomości. Zakończ wpisywanie pojedynczą kropką w osobnej linii:")
+# linie = []
+# while True:
+#     linia = input()
+#     if linia == ".":
+#         break
+#     linie.append(linia)
+
+# tresc = "\r\n".join(linie)
+# odbiorcy = [o.strip() for o in odbiorcy_tekst.split(",") if o.strip()]
+
+# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# sock.connect((HOST, PORT))
+
+# odbierz(sock)
+
+# wyslij(sock, "EHLO test\r\n")
+# wyslij(sock, "STARTTLS\r\n")
+
+# context = ssl.create_default_context()
+# sock = context.wrap_socket(sock, server_hostname=HOST)
+
+# wyslij(sock, "EHLO test\r\n")
+# wyslij(sock, "AUTH LOGIN\r\n")
+# wyslij(sock, base64_encode(nadawca) + "\r\n")
+# wyslij(sock, base64_encode(haslo) + "\r\n")
+
+# wyslij(sock, f"MAIL FROM:<{nadawca}>\r\n")
+
+# for odbiorca in odbiorcy:
+#     wyslij(sock, f"RCPT TO:<{odbiorca}>\r\n")
+
+# wyslij(sock, "DATA\r\n")
+
+# wiadomosc = (
+#     f"To: {', '.join(odbiorcy)}\r\n"
+#     f"From: {nadawca}\r\n"
+#     f"Subject: {temat}\r\n"
+#     "\r\n"
+#     f"{tresc}\r\n"
+#     ".\r\n"
+# )
+
+# print(">>> [treść wiadomości]")
+# sock.sendall(wiadomosc.encode())
+# odbierz(sock)
+
+# wyslij(sock, "QUIT\r\n")
+# sock.close()
+
+#zad 7
+
+# import socket
+# import ssl
+# import base64
+# import os
+
+# HOST = "poczta.interia.pl"
+# PORT = 587
+
+# def odbierz(sock):
+#     dane = b""
+#     while True:
+#         fragment = sock.recv(1024)
+#         dane += fragment
+#         if len(fragment) < 1024:
+#             break
+#     odpowiedz = dane.decode(errors="ignore")
+#     print(odpowiedz)
+#     return odpowiedz
+
+# def wyslij(sock, komenda):
+#     print(">>>", komenda.strip())
+#     sock.sendall(komenda.encode())
+#     return odbierz(sock)
+
+# def koduj_base64_tekst(tekst):
+#     return base64.b64encode(tekst.encode()).decode()
+
+# def koduj_base64_plik(sciezka):
+#     with open(sciezka, "rb") as plik:
+#         return base64.b64encode(plik.read()).decode()
+
+# nadawca = input("Podaj adres nadawcy: ").strip()
+# haslo = input("Podaj hasło: ").strip()
+# odbiorcy_tekst = input("Podaj odbiorców po przecinku: ").strip()
+# temat = input("Podaj temat wiadomości: ").strip()
+
+# print("Podaj treść wiadomości. Zakończ pojedynczą kropką w osobnej linii:")
+# linie = []
+# while True:
+#     linia = input()
+#     if linia == ".":
+#         break
+#     linie.append(linia)
+
+# tresc = "\r\n".join(linie)
+
+# sciezka_pliku = input("Podaj ścieżkę do pliku tekstowego: ").strip()
+# nazwa_pliku = os.path.basename(sciezka_pliku)
+
+# odbiorcy = [o.strip() for o in odbiorcy_tekst.split(",") if o.strip()]
+# zalacznik_base64 = koduj_base64_plik(sciezka_pliku)
+
+# boundary = "sep"
+
+# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# sock.connect((HOST, PORT))
+
+# odbierz(sock)
+
+# wyslij(sock, "EHLO test\r\n")
+# wyslij(sock, "STARTTLS\r\n")
+
+# context = ssl.create_default_context()
+# sock = context.wrap_socket(sock, server_hostname=HOST)
+
+# wyslij(sock, "EHLO test\r\n")
+# wyslij(sock, "AUTH LOGIN\r\n")
+# wyslij(sock, koduj_base64_tekst(nadawca) + "\r\n")
+# wyslij(sock, koduj_base64_tekst(haslo) + "\r\n")
+
+# wyslij(sock, f"MAIL FROM:<{nadawca}>\r\n")
+
+# for odbiorca in odbiorcy:
+#     wyslij(sock, f"RCPT TO:<{odbiorca}>\r\n")
+
+# wyslij(sock, "DATA\r\n")
+
+# wiadomosc = (
+#     f"To: {', '.join(odbiorcy)}\r\n"
+#     f"From: {nadawca}\r\n"
+#     f"Subject: {temat}\r\n"
+#     f"MIME-Version: 1.0\r\n"
+#     f"Content-Type: multipart/mixed; boundary={boundary}\r\n"
+#     f"\r\n"
+#     f"--{boundary}\r\n"
+#     f"{tresc}\r\n"
+#     f"\r\n"
+#     f"--{boundary}\r\n"
+#     f"Content-Type: text/plain; name=\"{nazwa_pliku}\"\r\n"
+#     f"Content-Disposition: attachment; filename=\"{nazwa_pliku}\"\r\n"
+#     f"Content-Transfer-Encoding: base64\r\n"
+#     f"\r\n"
+#     f"{zalacznik_base64}\r\n"
+#     f"--{boundary}--\r\n"
+#     f".\r\n"
+# )
+
+# print(">>> [wysyłanie wiadomości MIME z załącznikiem]")
+# sock.sendall(wiadomosc.encode())
+# odbierz(sock)
+
+# wyslij(sock, "QUIT\r\n")
+# sock.close()
+
+# zad 8
+
+# import socket
+# import ssl
+# import base64
+# import os
+
+# HOST = "poczta.interia.pl"
+# PORT = 587
+
+# def odbierz(sock):
+#     dane = b""
+#     while True:
+#         fragment = sock.recv(1024)
+#         dane += fragment
+#         if len(fragment) < 1024:
+#             break
+#     odpowiedz = dane.decode(errors="ignore")
+#     print(odpowiedz)
+#     return odpowiedz
+
+# def wyslij(sock, komenda):
+#     print(">>>", komenda.strip())
+#     sock.sendall(komenda.encode())
+#     return odbierz(sock)
+
+# def koduj_base64_tekst(tekst):
+#     return base64.b64encode(tekst.encode()).decode()
+
+# def koduj_base64_plik(sciezka):
+#     with open(sciezka, "rb") as plik:
+#         return base64.b64encode(plik.read()).decode()
+
+# def typ_mime_obrazka(nazwa_pliku):
+#     nazwa = nazwa_pliku.lower()
+
+#     if nazwa.endswith(".png"):
+#         return "image/png"
+#     elif nazwa.endswith(".jpg") or nazwa.endswith(".jpeg"):
+#         return "image/jpeg"
+#     elif nazwa.endswith(".gif"):
+#         return "image/gif"
+#     elif nazwa.endswith(".bmp"):
+#         return "image/bmp"
+#     elif nazwa.endswith(".webp"):
+#         return "image/webp"
+#     else:
+#         return "application/octet-stream"
+
+# nadawca = input("Podaj adres nadawcy: ").strip()
+# haslo = input("Podaj hasło: ").strip()
+# odbiorcy_tekst = input("Podaj odbiorców po przecinku: ").strip()
+# temat = input("Podaj temat wiadomości: ").strip()
+
+# print("Podaj treść wiadomości. Zakończ pojedynczą kropką w osobnej linii:")
+# linie = []
+# while True:
+#     linia = input()
+#     if linia == ".":
+#         break
+#     linie.append(linia)
+
+# tresc = "\r\n".join(linie)
+
+# sciezka_pliku = input("Podaj ścieżkę do obrazka: ").strip()
+# nazwa_pliku = os.path.basename(sciezka_pliku)
+# mime_typ = typ_mime_obrazka(nazwa_pliku)
+
+# odbiorcy = [o.strip() for o in odbiorcy_tekst.split(",") if o.strip()]
+# zalacznik_base64 = koduj_base64_plik(sciezka_pliku)
+
+# boundary = "sep"
+
+# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# sock.connect((HOST, PORT))
+
+# odbierz(sock)
+
+# wyslij(sock, "EHLO test\r\n")
+# wyslij(sock, "STARTTLS\r\n")
+
+# context = ssl.create_default_context()
+# sock = context.wrap_socket(sock, server_hostname=HOST)
+
+# wyslij(sock, "EHLO test\r\n")
+# wyslij(sock, "AUTH LOGIN\r\n")
+# wyslij(sock, koduj_base64_tekst(nadawca) + "\r\n")
+# wyslij(sock, koduj_base64_tekst(haslo) + "\r\n")
+
+# wyslij(sock, f"MAIL FROM:<{nadawca}>\r\n")
+
+# for odbiorca in odbiorcy:
+#     wyslij(sock, f"RCPT TO:<{odbiorca}>\r\n")
+
+# wyslij(sock, "DATA\r\n")
+
+# wiadomosc = (
+#     f"To: {', '.join(odbiorcy)}\r\n"
+#     f"From: {nadawca}\r\n"
+#     f"Subject: {temat}\r\n"
+#     f"MIME-Version: 1.0\r\n"
+#     f"Content-Type: multipart/mixed; boundary={boundary}\r\n"
+#     f"\r\n"
+#     f"--{boundary}\r\n"
+#     f"Content-Type: text/plain; charset=utf-8\r\n"
+#     f"\r\n"
+#     f"{tresc}\r\n"
+#     f"\r\n"
+#     f"--{boundary}\r\n"
+#     f"Content-Type: {mime_typ}; name=\"{nazwa_pliku}\"\r\n"
+#     f"Content-Disposition: attachment; filename=\"{nazwa_pliku}\"\r\n"
+#     f"Content-Transfer-Encoding: base64\r\n"
+#     f"\r\n"
+#     f"{zalacznik_base64}\r\n"
+#     f"--{boundary}--\r\n"
+#     f".\r\n"
+# )
+
+# print(">>> [wysyłanie wiadomości MIME z obrazkiem]")
+# sock.sendall(wiadomosc.encode())
+# odbierz(sock)
+
+# wyslij(sock, "QUIT\r\n")
+# sock.close()
+
+# zad 9
+
+# import socket
+# import ssl
+# import base64
+
+# HOST = "poczta.interia.pl"
+# PORT = 587
+
+# def odbierz(sock):
+#     dane = b""
+#     while True:
+#         fragment = sock.recv(1024)
+#         dane += fragment
+#         if len(fragment) < 1024:
+#             break
+#     odpowiedz = dane.decode(errors="ignore")
+#     print(odpowiedz)
+#     return odpowiedz
+
+# def wyslij(sock, komenda):
+#     print(">>>", komenda.strip())
+#     sock.sendall(komenda.encode())
+#     return odbierz(sock)
+
+# def koduj_base64(tekst):
+#     return base64.b64encode(tekst.encode()).decode()
+
+# nadawca = input("Podaj adres nadawcy: ").strip()
+# haslo = input("Podaj hasło: ").strip()
+# odbiorcy_tekst = input("Podaj odbiorców po przecinku: ").strip()
+# temat = input("Podaj temat wiadomości: ").strip()
+
+# print("Podaj treść HTML wiadomości. Zakończ pojedynczą kropką w osobnej linii:")
+# linie = []
+# while True:
+#     linia = input()
+#     if linia == ".":
+#         break
+#     linie.append(linia)
+
+# tresc_html = "\r\n".join(linie)
+# odbiorcy = [o.strip() for o in odbiorcy_tekst.split(",") if o.strip()]
+
+# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# sock.connect((HOST, PORT))
+
+# odbierz(sock)
+
+# wyslij(sock, "EHLO test\r\n")
+# wyslij(sock, "STARTTLS\r\n")
+
+# context = ssl.create_default_context()
+# sock = context.wrap_socket(sock, server_hostname=HOST)
+
+# wyslij(sock, "EHLO test\r\n")
+# wyslij(sock, "AUTH LOGIN\r\n")
+# wyslij(sock, koduj_base64(nadawca) + "\r\n")
+# wyslij(sock, koduj_base64(haslo) + "\r\n")
+
+# wyslij(sock, f"MAIL FROM:<{nadawca}>\r\n")
+
+# for odbiorca in odbiorcy:
+#     wyslij(sock, f"RCPT TO:<{odbiorca}>\r\n")
+
+# wyslij(sock, "DATA\r\n")
+
+# wiadomosc = (
+#     f"To: {', '.join(odbiorcy)}\r\n"
+#     f"From: {nadawca}\r\n"
+#     f"Subject: {temat}\r\n"
+#     f"MIME-Version: 1.0\r\n"
+#     f"Content-Type: text/html; charset=utf-8\r\n"
+#     f"\r\n"
+#     f"{tresc_html}\r\n"
+#     f".\r\n"
+# )
+
+# print(">>> [wysyłanie wiadomości HTML]")
+# sock.sendall(wiadomosc.encode("utf-8"))
+# odbierz(sock)
+
+# wyslij(sock, "QUIT\r\n")
+# sock.close()
+
+# zad 10
+
+import socket
+import ssl
+import base64
+
+HOST = "127.0.0.1"
+PORT = 2525
+
+CERT_FILE = "cert.pem"
+KEY_FILE = "key.pem"
+
+
+def wyslij_linie(polaczenie, tekst):
+    polaczenie.sendall((tekst + "\r\n").encode())
+
+
+def odbierz_linie(plik):
+    linia = plik.readline()
+    if not linia:
+        return None
+    return linia.decode(errors="ignore").rstrip("\r\n")
+
+
+serwer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serwer.bind((HOST, PORT))
+serwer.listen(1)
+
+print(f"Serwer SMTP działa na {HOST}:{PORT}")
+
+while True:
+    klient, adres = serwer.accept()
+    print("Połączono z:", adres)
+
+    plik = klient.makefile("rb")
+
+    tls_aktywne = False
+    zalogowany = False
+    mail_from = None
+    rcpt_to = []
+    tresc_wiadomosci = []
+
+    wyslij_linie(klient, "220 localhost SMTP ready")
+
+    while True:
+        linia = odbierz_linie(plik)
+
+        if linia is None:
+            break
+
+        print("C:", linia)
+
+        if linia.upper().startswith("HELO"):
+            wyslij_linie(klient, "250 localhost")
+
+        elif linia.upper().startswith("HELO"):
+            wyslij_linie(klient, "250-localhost")
+            wyslij_linie(klient, "250-STARTTLS")
+            wyslij_linie(klient, "250-AUTH LOGIN")
+            wyslij_linie(klient, "250 OK")
+
+        elif linia.upper() == "STARTTLS":
+            wyslij_linie(klient, "220 Ready to start TLS")
+
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.load_cert_chain(certfile=CERT_FILE, keyfile=KEY_FILE)
+
+            klient = context.wrap_socket(klient, server_side=True)
+            plik = klient.makefile("rb")
+            tls_aktywne = True
+
+        elif linia.upper() == "AUTH LOGIN":
+            wyslij_linie(klient, "334 VXNlcm5hbWU6")  # Username:
+            login_b64 = odbierz_linie(plik)
+            print("C:", login_b64)
+
+            wyslij_linie(klient, "334 UGFzc3dvcmQ6")  # Password:
+            haslo_b64 = odbierz_linie(plik)
+            print("C:", haslo_b64)
+
+            # tylko dla podglądu – nie trzeba tego nawet sprawdzać
+            try:
+                login = base64.b64decode(login_b64).decode(errors="ignore")
+                haslo = base64.b64decode(haslo_b64).decode(errors="ignore")
+                print("Login:", login)
+                print("Hasło:", haslo)
+            except:
+                pass
+
+            zalogowany = True
+            wyslij_linie(klient, "235 2.7.0 Authentication successful")
+
+        elif linia.upper().startswith("MAIL FROM:"):
+            if not zalogowany:
+                wyslij_linie(klient, "530 5.7.0 Authentication required")
+            else:
+                mail_from = linia[10:].strip()
+                wyslij_linie(klient, "250 2.1.0 Ok")
+
+        elif linia.upper().startswith("RCPT TO:"):
+            if mail_from is None:
+                wyslij_linie(klient, "503 5.5.1 Need MAIL FROM first")
+            else:
+                rcpt_to.append(linia[8:].strip())
+                wyslij_linie(klient, "250 2.1.5 Ok")
+
+        elif linia.upper() == "DATA":
+            if not rcpt_to:
+                wyslij_linie(klient, "503 5.5.1 Need RCPT TO first")
+            else:
+                wyslij_linie(klient, "354 End data with <CR><LF>.<CR><LF>")
+
+                tresc_wiadomosci = []
+                while True:
+                    wiersz = odbierz_linie(plik)
+                    if wiersz == ".":
+                        break
+                    tresc_wiadomosci.append(wiersz)
+
+                print("=== ODEBRANA WIADOMOŚĆ ===")
+                print("MAIL FROM:", mail_from)
+                print("RCPT TO:", rcpt_to)
+                print("\n".join(tresc_wiadomosci))
+                print("==========================")
+
+                wyslij_linie(klient, "250 2.0.0 OK: message accepted")
+
+                # reset danych do następnej wiadomości
+                mail_from = None
+                rcpt_to = []
+                tresc_wiadomosci = []
+
+        elif linia.upper() == "RSET":
+            mail_from = None
+            rcpt_to = []
+            tresc_wiadomosci = []
+            wyslij_linie(klient, "250 Ok")
+
+        elif linia.upper() == "NOOP":
+            wyslij_linie(klient, "250 Ok")
+
+        elif linia.upper() == "QUIT":
+            wyslij_linie(klient, "221 2.0.0 Bye")
+            break
+
+        else:
+            wyslij_linie(klient, "500 5.5.2 Command not recognized")
+
+    klient.close()

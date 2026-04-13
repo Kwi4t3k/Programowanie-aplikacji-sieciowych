@@ -4,3 +4,4 @@
 - [Labolatorium 3](LAB_03/zadania.md)
 - [Labolatorium 4](LAB_04/zadania.md)
 - [Labolatorium 5](LAB_05/zadania.md)
+- [Labolatorium 6](LAB_06/zadania.md)
