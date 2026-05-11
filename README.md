@@ -5,3 +5,7 @@
 - [Labolatorium 4](LAB_04/zadania.md)
 - [Labolatorium 5](LAB_05/zadania.md)
 - [Labolatorium 6](LAB_06/zadania.md)
+- [Labolatorium 7](LAB_07/zadania.md)
+- [Labolatorium 8](LAB_08/zadania.md)
+- [Labolatorium 9](LAB_09/zadania.md)
+- [Labolatorium 10](LAB_10/zadania.md)
