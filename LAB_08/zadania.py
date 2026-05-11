@@ -363,9 +363,7 @@ if __name__ == "__main__":
 
     wybor = input("Twój wybór: ").strip()
 
-    if wybor == "1":
-        zadanie_1_instrukcja()
-    elif wybor == "2":
+    if wybor == "2":
         zadanie_2()
     elif wybor == "3":
         zadanie_3()
